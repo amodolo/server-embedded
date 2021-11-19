@@ -8,9 +8,7 @@ import java.net.URL;
 public class Launcher {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Launching app...");
 
-        //jetty
         Server server = new Server(8080);
         WebAppContext webapp = new WebAppContext();
         webapp.setContextPath("/");
@@ -18,7 +16,6 @@ public class Launcher {
         URL webAppDir = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
         webapp.setWar(webAppDir.toURI().toString());
         webapp.setParentLoaderPriority(true);
-
         server.setHandler(webapp);
 
         server.start();
