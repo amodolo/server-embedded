@@ -1,24 +1,25 @@
 package org.example.app;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
-
-import java.net.URL;
-
-public class Launcher {
+public class Launcher implements Runnable {
+    private final WebServer server;
 
     public static void main(String[] args) throws Exception {
+        new Launcher().start();
+    }
 
-        Server server = new Server(8080);
-        WebAppContext webapp = new WebAppContext();
-        webapp.setContextPath("/");
-        webapp.setDescriptor("WEB-INF/web.xml");
-        URL webAppDir = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
-        webapp.setWar(webAppDir.toURI().toString());
-        webapp.setParentLoaderPriority(true);
-        server.setHandler(webapp);
+    public Launcher() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this));
+//        server = new TomcatServer(8080);
+        server = new JettyServer(8080);
+    }
 
+    public void start() throws Exception {
         server.start();
-        server.join();
+    }
+
+    @Override
+    public void run() {
+        System.out.println("shutdown...");
+        server.stop();
     }
 }
