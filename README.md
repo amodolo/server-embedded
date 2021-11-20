@@ -1,5 +1,5 @@
 # server-embedded
-a simple playground to check the feasibility to embed a jetty server inside a fatjar
+a simple playground to check the feasibility to embed a jetty and tomcat server inside a fatjar
 
 ## Quick start
 
