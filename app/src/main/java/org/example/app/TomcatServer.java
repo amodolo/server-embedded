@@ -1,6 +1,7 @@
 package org.example.app;
 
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.startup.Tomcat;
 
 import java.io.File;
@@ -11,9 +12,11 @@ import java.nio.file.Files;
 public class TomcatServer implements WebServer {
     private Tomcat server;
     private final int port;
+    private final String contextPath;
 
-    public TomcatServer(int port) {
+    public TomcatServer(int port, String contextPath) {
         this.port = port;
+        this.contextPath = contextPath;
     }
 
     @Override
@@ -22,12 +25,20 @@ public class TomcatServer implements WebServer {
         server.setBaseDir(createTempDir("tomcat").getAbsolutePath());
         server.setPort(port);
         server.getHost().setAutoDeploy(false);
+        if (server.getHost() instanceof StandardHost) {
+            ((StandardHost)server.getHost()).setUnpackWARs(false);
+        }
+
         server.getHost().setAppBase(".");
         URL docBase = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
-        server.addWebapp("/", docBase);
+        server.addWebapp(contextPath, docBase);
 
         server.start();
 
+        startDaemonAwaitThread();
+    }
+
+    private void startDaemonAwaitThread() {
         Thread awaitThread = new Thread(() -> server.getServer().await());
         awaitThread.setContextClassLoader(getClass().getClassLoader());
         awaitThread.setDaemon(false);

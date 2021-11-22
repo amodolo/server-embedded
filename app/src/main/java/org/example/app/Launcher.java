@@ -9,8 +9,8 @@ public class Launcher implements Runnable {
 
     public Launcher() {
         Runtime.getRuntime().addShutdownHook(new Thread(this));
-//        server = new TomcatServer(8080);
-        server = new JettyServer(8080);
+        server = new TomcatServer(8080, "/");
+//        server = new JettyServer(8080);
     }
 
     public void start() throws Exception {
