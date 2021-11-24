@@ -1,6 +1,6 @@
 package org.example.app;
 
-import org.apache.catalina.LifecycleException;
+import org.apache.catalina.*;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.startup.Tomcat;
 
@@ -21,6 +21,8 @@ public class TomcatServer implements WebServer {
 
     @Override
     public void start() throws Exception {
+        long start = System.currentTimeMillis();
+
         server = new Tomcat();
         server.setBaseDir(createTempDir("tomcat").getAbsolutePath());
         server.setPort(port);
@@ -31,7 +33,15 @@ public class TomcatServer implements WebServer {
 
         server.getHost().setAppBase(".");
         URL docBase = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
-        server.addWebapp(contextPath, docBase);
+        Context ctx = server.addWebapp(contextPath, docBase);
+        ctx.setParentClassLoader(getClass().getClassLoader());
+
+        ctx.addLifecycleListener(event -> {
+            if (Lifecycle.AFTER_START_EVENT.equals(event.getType())) {
+                long elapsed = System.currentTimeMillis() - start;
+                System.out.printf("Server started in %d ms%n", elapsed);
+            }
+        });
 
         server.start();
 

@@ -1,5 +1,5 @@
 # server-embedded
-a simple playground to check the feasibility to embed a jetty and tomcat server inside a fatjar
+a simple playground to check the feasibility to embed a jetty and tomcat server inside am executable war
 
 ## Quick start
 
@@ -9,7 +9,7 @@ Compile the project with maven
 
 Then launch the application using
 
-    $ java -jar ./app/target/app.jar
+    $ java -jar ./app/target/app.war
 
 The application is deployed inside a jetty server at the url
 
@@ -34,7 +34,5 @@ This project contains two maven's modules:
 2. **core**: contains only a servlet and a web-fragment.xml.
 
 The original aim it was to define the servlet inside the fragment and let the jetty publish it using the J2EE spec against the web.xml and web-fragments.
-But, as far as the maven-assembly-plugin (which is the one used to generate the fat jar) produces an [unshaded fat jar](https://stackoverflow.com/a/39030649/17405757),
-it is not possible to use the web-fragment (the fragment must be included inside a dependent jar, it is not possible to load
-a fragment if it is part of the final web-app).
+At the moment the fragment scanner has been disabled (with the metadata-complete="true") to minimize the startup time. 
 
