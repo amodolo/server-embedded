@@ -3,6 +3,8 @@ package org.example.app;
 import org.apache.catalina.*;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.scan.StandardJarScanFilter;
+import org.apache.tomcat.util.scan.StandardJarScanner;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +35,19 @@ public class TomcatServer implements WebServer {
 
         server.getHost().setAppBase(".");
         URL docBase = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
-        Context ctx = server.addWebapp(contextPath, docBase);
+        String path = docBase.getPath().substring(6);
+        int idx = path.indexOf('!');
+        if (idx!=-1) path = path.substring(0, idx);
+        Context ctx = server.addWebapp(contextPath, path);
+//        Context ctx = server.addWebapp(contextPath, docBase);
         ctx.setParentClassLoader(getClass().getClassLoader());
+        StandardJarScanFilter filter = new StandardJarScanFilter() {
+            @Override
+            public boolean isSkipAll() {
+                return true;
+            }
+        };
+        ctx.getJarScanner().setJarScanFilter(filter);
 
         ctx.addLifecycleListener(event -> {
             if (Lifecycle.AFTER_START_EVENT.equals(event.getType())) {
