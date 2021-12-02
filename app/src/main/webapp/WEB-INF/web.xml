@@ -15,7 +15,7 @@
     </servlet-mapping>
 
 
-    <listener>
-        <listener-class>org.example.core.servlet.ContextListener</listener-class>
-    </listener>
+<!--    <listener>-->
+<!--        <listener-class>org.example.core.servlet.ContextListener</listener-class>-->
+<!--    </listener>-->
 </web-app>

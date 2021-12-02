@@ -2,9 +2,11 @@ package org.example.app;
 
 import org.apache.catalina.*;
 import org.apache.catalina.core.StandardHost;
+import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
 import org.apache.tomcat.util.scan.StandardJarScanner;
+import org.example.core.servlet.ContextListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,27 +36,35 @@ public class TomcatServer implements WebServer {
         }
 
         server.getHost().setAppBase(".");
-        URL docBase = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
-        String path = docBase.getPath().substring(6);
-        int idx = path.indexOf('!');
-        if (idx!=-1) path = path.substring(0, idx);
-        Context ctx = server.addWebapp(contextPath, path);
+//        URL docBase = Launcher.class.getProtectionDomain().getCodeSource().getLocation();
+//        String path = docBase.getPath().substring(6);
+//        int idx = path.indexOf('!');
+//        if (idx!=-1) path = path.substring(0, idx);
+//        Context ctx = server.addWebapp(contextPath, path);
 //        Context ctx = server.addWebapp(contextPath, docBase);
-        ctx.setParentClassLoader(getClass().getClassLoader());
-        StandardJarScanFilter filter = new StandardJarScanFilter() {
-            @Override
-            public boolean isSkipAll() {
-                return true;
-            }
-        };
-        ctx.getJarScanner().setJarScanFilter(filter);
+        Context ctx = server.addContext(server.getHost(), "/", createTempDir("tomcat-docbase").getAbsolutePath()); // parte ma non carica il web.xml oerchè nella temp dir non c'è nulla
 
+
+        ctx.setParentClassLoader(getClass().getClassLoader());
+
+//        StandardJarScanFilter filter = new StandardJarScanFilter() {
+//            @Override
+//            public boolean isSkipAll() {
+//                return true;
+//            }
+//        };
+//        ctx.getJarScanner().setJarScanFilter(filter);
+
+//        ctx.setAltDDName(getClass().getClassLoader().getResource("/WEB-INF/web.xml").getPath());
+        ctx.addLifecycleListener(new ContextConfig());
         ctx.addLifecycleListener(event -> {
             if (Lifecycle.AFTER_START_EVENT.equals(event.getType())) {
                 long elapsed = System.currentTimeMillis() - start;
                 System.out.printf("Server started in %d ms%n", elapsed);
             }
         });
+
+        ctx.addApplicationListener(ContextListener.class.getName());
 
         server.start();
 
